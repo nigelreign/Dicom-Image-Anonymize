@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DrCadx DICOM anonymiser</title>
+    <script type="text/javascript" src="main.js"></script>
+    <style>
+    tr {
+        outline: 1px solid #AAA;
+    }
+    </style>
+    <script type="text/javascript" src="jquery-2.2.4.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+        var dcmio = window.dicomanon.dcmio
+        var dicomData = null;
+        $('#select').change(function(evt) {
+            var e = evt.originalEvent, files = e.target.files;
+
+            var reader = new FileReader()
+            reader.onload = function(e) {
+                var startTime = new Date();
+                dicomData = dcmio.Message.readFile(e.target.result);
+                var readIn = (new Date()) - startTime;
+                // You can validate the original data if you want to see validation warnings.
+                // These are seperate from the whitelist policy and are only a double-check based on value type.
+                var warnings = {}//dcmio.Validator(dicomData.dict);
+
+
+                var beforeData = JSON.parse(JSON.stringify(dicomData.dict));
+                console.log("Dicom image before anonymization");
+
+
+                dicomData.dict = dcmio.Anonymize(dicomData.dict);
+                console.log(dicomData.dict);
+                warnings = dcmio.Validator(dicomData.dict);
+
+                const renderKey = (index) => {
+                    if (dcmio.TagData[index.toLowerCase()]){
+                        return index + JSON.stringify(dcmio.TagData[index.toLowerCase()]["key"]);
+                    } else {
+                        return index
+                    }
+                }
+                
+
+                $('#upload-status').html("Dicom Uploaded");
+                // $('#convertToDicom').show()
+            }
+            reader.readAsArrayBuffer(files[0]);
+        });
+
+        $('#downloadDicomImage').click(function(){
+            console.log('preparing to download image')
+        });
+    });
+    </script>
+</head>
+<body>
+<div class="wrapper">
+    <input type="file" value="Select dicom" id="select"></input>
+    <span id="upload-status"></span>
+    <div><button id="downloadDicomImage">Download DICOM</button><span id="upload-status"></span></div>
+    <table style="width: 100%" id="table"></table>
+</div>
+</body>
+</html>
