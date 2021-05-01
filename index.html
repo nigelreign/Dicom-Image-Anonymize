@@ -26,25 +26,16 @@
                 var warnings = {}//dcmio.Validator(dicomData.dict);
 
 
-                var beforeData = JSON.parse(JSON.stringify(dicomData.dict));
+                var dicomImageBeforeAnonymization = JSON.parse(JSON.stringify(dicomData.dict));
                 console.log("Dicom image before anonymization");
-
+                console.log(dicomImageBeforeAnonymization);
 
                 dicomData.dict = dcmio.Anonymize(dicomData.dict);
+                console.log("Dicom Image after anonymization");
                 console.log(dicomData.dict);
                 warnings = dcmio.Validator(dicomData.dict);
-
-                const renderKey = (index) => {
-                    if (dcmio.TagData[index.toLowerCase()]){
-                        return index + JSON.stringify(dcmio.TagData[index.toLowerCase()]["key"]);
-                    } else {
-                        return index
-                    }
-                }
                 
-
                 $('#upload-status').html("Dicom Uploaded");
-                // $('#convertToDicom').show()
             }
             reader.readAsArrayBuffer(files[0]);
         });
